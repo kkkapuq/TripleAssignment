@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tripleassignment.tripledemo.repository.MypageDAO">
+
+    <select id="getAllDataList" parameterType="String" resultType="com.tripleassignment.tripledemo.domain.ReviewVO">
+        SELECT *
+        FROM TPLACEREVIEW
+        WHERE USER_ID = #{userId, jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectUserPoint" parameterType="String" resultType="com.tripleassignment.tripledemo.domain.UserVO">
+        SELECT /* mypage.xml : tripledemo.mypage.selectUserPoint */
+            USER_ID,
+            SUM(CASE REVIEW_TYPE
+                WHEN '40'
+                    THEN -POINT
+                ELSE
+                    POINT
+            END
+        ) AS POINT,
+        MAX(POINT_SEQ)
+        FROM
+            TUSERPOINTHIS
+        WHERE
+            USER_ID = #{userId, jdbcType=VARCHAR}
+        GROUP BY
+            USER_ID
+    </select>
+
+    <select id="selectUserReview" parameterType="com.tripleassignment.tripledemo.domain.ReviewVO" resultType="int">
+        SELECT /* mypage.xml : tripledemo.mypage.selectUserReview */
+            COUNT(*)
+        FROM
+            TPLACEREVIEW
+        WHERE USER_ID = #{userId, jdbcType=VARCHAR}
+          AND PLACE_ID = #{placeId, jdbcType=VARCHAR}
+    </select>
+
+    <insert id="insertReview" parameterType="com.tripleassignment.tripledemo.domain.ReviewVO">
+        INSERT INTO TPLACEREVIEW /* mypage.xml : tripledemo.mypage.insertReview */
+        (
+            USER_ID,
+            PLACE_ID,
+            REVIEW_ID,
+            CONTENT,
+            DISPLAY_YN,
+            INSERT_ID,
+            INSERT_DATE,
+            MODIFY_ID,
+            MODIFY_DATE
+        )
+            VALUES
+        (
+            #{userId, jdbcType=VARCHAR},
+            #{placeId, jdbcType=VARCHAR},
+            #{reviewId, jdbcType=VARCHAR},
+            #{content, jdbcType=VARCHAR},
+            '1',
+            'HJCHO',
+            SYSDATE(),
+            'HJCHO',
+            SYSDATE()
+        )
+    </insert>
+
+    <insert id="insertReviewPhoto" parameterType="com.tripleassignment.tripledemo.domain.ReviewVO">
+        INSERT INTO TPLACEREVIEWPHOTO /* mypage.xml : tripledemo.mypage.insertReviewPhoto */
+        (
+            USER_ID,
+            PLACE_ID,
+            PHOTO_ID,
+            USE_YN,
+            INSERT_ID,
+            INSERT_DATE,
+            MODIFY_ID,
+            MODIFY_DATE
+        )
+        VALUES
+        (
+            #{userId, jdbcType=VARCHAR},
+            #{placeId, jdbcType=VARCHAR},
+            #{photoId, jdbcType=VARCHAR},
+            '1',
+            'HJCHO',
+            SYSDATE(),
+            'HJCHO',
+            SYSDATE()
+        )
+    </insert>
+
+    <insert id="insertPoint" parameterType="com.tripleassignment.tripledemo.domain.ReviewVO">
+        INSERT INTO TUSERPOINTHIS /* mypage.xml : tripledemo.mypage.insertPoint */
+        (
+            USER_ID,
+            POINT_SEQ,
+            POINT,
+            REVIEW_ID,
+            REVIEW_TYPE,
+            INSERT_ID,
+            INSERT_DATE,
+            MODIFY_ID,
+            MODIFY_DATE
+        )
+        VALUES
+        (
+            #{userId, jdbcType=VARCHAR},
+            (SELECT
+                B.POINT_SEQ
+            FROM
+                (
+                SELECT
+                    IFNULL(A.AAA, '00000001') AS POINT_SEQ
+                FROM
+                    (
+                    SELECT
+                        LPAD(CONVERT(MAX(POINT_SEQ), UNSIGNED)+ 1, 8, '0') AS AAA
+                    FROM
+                        TUSERPOINTHIS
+                    WHERE
+                        USER_ID = #{userId, jdbcType=VARCHAR}
+                    ) A
+                ) B
+            ),
+            '1',
+            #{reviewId, jdbcType=VARCHAR},
+            #{reviewType, jdbcType=VARCHAR},
+            'HJCHO',
+            SYSDATE(),
+            'HJCHO',
+            SYSDATE()
+        )
+    </insert>
+
+    <select id="selectFirstReview" parameterType="com.tripleassignment.tripledemo.domain.ReviewVO" resultType="int">
+        SELECT /* mypage.xml : tripledemo.mypage.selectFirstReview */
+            COUNT(*)
+        FROM
+            TPLACEREVIEW
+        WHERE PLACE_ID = #{placeId, jdbcType=VARCHAR}
+          AND DISPLAY_YN = '1'
+    </select>
+
+    <select id="selectUserFirstReviewPoint" parameterType="com.tripleassignment.tripledemo.domain.ReviewVO" resultType="int">
+        SELECT /* mypage.xml : tripledemo.mypage.selectUserFirstReviewPoint */
+            COUNT(*)
+        FROM
+            TUSERPOINTHIS
+        WHERE USER_ID = #{userId, jdbcType=VARCHAR}
+        AND REVIEW_TYPE = '30'
+        AND REVIEW_ID = #{reviewId, jdbcType=VARCHAR}
+    </select>
+
+    <update id="updateUserReview" parameterType="com.tripleassignment.tripledemo.domain.ReviewVO">
+        UPDATE TPLACEREVIEW /* mypage.xml : tripledemo.mypage.updateUserReview */
+        SET
+            CONTENT = #{content, jdbcType=VARCHAR},
+            MODIFY_ID = 'HJCHO',
+            MODIFY_DATE = SYSDATE()
+        WHERE USER_ID = #{userId, jdbcType=VARCHAR}
+          AND PLACE_ID = #{placeId, jdbcType=VARCHAR}
+          AND REVIEW_ID = #{reviewId, jdbcType=VARCHAR}
+    </update>
+
+    <update id="updateUserPhotoReview" parameterType="com.tripleassignment.tripledemo.domain.ReviewVO">
+        /* mypage.xml : tripledemo.mypage.updateUserPhotoReview */
+        INSERT INTO TPLACEREVIEWPHOTO(
+            USER_ID,
+            PLACE_ID,
+            PHOTO_ID,
+            USE_YN,
+            INSERT_ID,
+            INSERT_DATE,
+            MODIFY_ID,
+            MODIFY_DATE
+        )
+        VALUES(
+            #{userId, jdbcType=VARCHAR},
+            #{placeId, jdbcType=VARCHAR},
+            #{photoId, jdbcType=VARCHAR},
+            '1',
+            'HJCHO',
+            SYSDATE(),
+            'HJCHO',
+            SYSDATE()
+        )
+        ON DUPLICATE KEY UPDATE
+        USE_YN = IF(PHOTO_ID NOT IN
+                    <foreach item="item" index="index" collection="attachedPhotoIds"
+                             open="(" separator="," close=")">
+                             #{item}
+                    </foreach>
+                    , '0', '1'),
+        MODIFY_ID = 'HJCHO',
+        MODIFY_DATE = SYSDATE()
+    </update>
+
+    <update id="updateUserPhotoReviewNoUse" parameterType="com.tripleassignment.tripledemo.domain.ReviewVO">
+        UPDATE TPLACEREVIEWPHOTO /* mypage.xml : tripledemo.mypage.updateUserPhotoReviewNoUse */
+        SET
+            USE_YN = '0',
+            MODIFY_ID = 'HJCHO',
+            MODIFY_DATE = SYSDATE()
+        WHERE USER_ID = #{userId, jdbcType=VARCHAR}
+        AND PLACE_ID = #{placeId, jdbcType=VARCHAR}
+        <if test="flag != null and flag == 1">
+            AND PHOTO_ID NOT IN <foreach item="item" index="index" collection="attachedPhotoIds"
+                                                                 open="(" separator="," close=")">
+                                    #{item}
+                                </foreach>
+        </if>
+    </update>
+
+    <update id="deleteUserReview" parameterType="com.tripleassignment.tripledemo.domain.ReviewVO">
+        UPDATE TPLACEREVIEW /* mypage.xml : tripledemo.mypage.deleteUserReview */
+        SET
+        DISPLAY_YN = '0',
+        MODIFY_ID = 'HJCHO',
+        MODIFY_DATE = SYSDATE()
+        WHERE USER_ID = #{userId, jdbcType=VARCHAR}
+        AND PLACE_ID = #{placeId, jdbcType=VARCHAR}
+        AND REVIEW_ID = #{reviewId, jdbcType=VARCHAR}
+    </update>
+
+    <select id="selectUserPhotoReview" parameterType="com.tripleassignment.tripledemo.domain.ReviewVO" resultType="int">
+        SELECT /* mypage.xml : tripledemo.mypage.selectUserPhotoReview */
+            COUNT(*)
+        FROM
+            TPLACEREVIEWPHOTO
+        WHERE USER_ID = #{userId, jdbcType=VARCHAR}
+          AND PLACE_ID = #{placeId, jdbcType=VARCHAR}
+          AND USE_YN = '1'
+    </select>
+
+</mapper>
