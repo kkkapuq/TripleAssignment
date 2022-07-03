@@ -47,7 +47,7 @@ CREATE DATABASE triple default CHARACTER SET UTF8;
 
 **ERD**
 
-![Untitled](https://user-images.githubusercontent.com/44130863/177029898-0d96f1cb-9427-4dd4-bc1c-80a5ea891dfc.png)
+![Untitled](https://user-images.githubusercontent.com/44130863/177030386-ddd1b019-45aa-4b55-bd96-664dfd25a47a.png)
 
 **테이블 생성**
 
@@ -119,11 +119,11 @@ CREATE INDEX USER_ID_IDX ON TPLACEREVIEWPHOTO(USER_ID);
 
 **프로젝트 구조**
 
-![Untitled (1)](https://user-images.githubusercontent.com/44130863/177029892-e9fb7a09-7025-4c79-b2a4-10ceee1c2ceb.png)
+![Untitled (1)](https://user-images.githubusercontent.com/44130863/177030387-40962c01-9d94-4fce-885d-8df6fcd622c3.png)
 
 **로컬에서 실행**
 
-![Untitled (2)](https://user-images.githubusercontent.com/44130863/177029894-e983dd23-a082-4f70-b9ec-b32742130bf0.png)
+![Untitled (2)](https://user-images.githubusercontent.com/44130863/177030382-059346d5-24dd-448c-b619-3358464dcaab.png)
 
 **TEST URL**
 
@@ -133,7 +133,7 @@ CREATE INDEX USER_ID_IDX ON TPLACEREVIEWPHOTO(USER_ID);
 http://localhost:8080/mypage/point-list?userId=3ede0ef2-bbbb-4817-a5f3-0c575361f745
 ```
 
-![Untitled (3)](https://user-images.githubusercontent.com/44130863/177029896-724649ec-0de0-4a26-b28f-a73b82aef5ad.png)
+![Untitled (3)](https://user-images.githubusercontent.com/44130863/177030384-497c742d-2a2f-4842-8318-94725df64463.png)
 
 리뷰 이벤트
 
@@ -141,6 +141,6 @@ http://localhost:8080/mypage/point-list?userId=3ede0ef2-bbbb-4817-a5f3-0c575361f
 http://localhost:8080/mypage/events
 ```
 
-![Untitled (4)](https://user-images.githubusercontent.com/44130863/177029899-93a671a0-358a-439d-9f21-da1826723763.png)
+![Untitled (4)](https://user-images.githubusercontent.com/44130863/177030385-ace08882-21d7-4617-a1c0-4eab1f0d63a2.png)
 
 이후 테스트 진행은 첨부된 테스트 케이스 엑셀파일 참고 부탁드립니다.
