@@ -35,6 +35,7 @@
             TPLACEREVIEW
         WHERE USER_ID = #{userId, jdbcType=VARCHAR}
           AND PLACE_ID = #{placeId, jdbcType=VARCHAR}
+          AND DISPLAY_YN = '1'
     </select>
 
     <insert id="insertReview" parameterType="com.tripleassignment.tripledemo.domain.ReviewVO">
